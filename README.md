@@ -6,7 +6,7 @@ This is a bot that generates tweets about #fake news, and general #fakeness.
 ```
 pip install -r requirements.txt
 
-heroku run local web
+heroku local web
 ```
 
 
