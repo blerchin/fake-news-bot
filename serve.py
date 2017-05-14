@@ -69,8 +69,9 @@ tweets.start()
 def render_app():
     return render_template('app.html')
 
-@sockets.route('/submit')
-def inbox(ws):
+@sockets.route('/ws')
+def socket(ws):
+    tweets.register(ws)
     while not ws.closed:
         gevent.sleep(0.1)
         message = ws.receive()
@@ -78,10 +79,3 @@ def inbox(ws):
         if message:
             app.logger.info(u'inserting message: {}'.format(message))
             redis.publish(REDIS_CHAN, message)
-
-@sockets.route('/receive')
-def outbox(ws):
-    tweets.register(ws)
-
-    while not ws.closed:
-        gevent.sleep(0.1)
