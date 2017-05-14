@@ -1,14 +1,23 @@
 # Fake News Bot
 
-This is a bot that generates tweets about #fake news, and general #fakeness. 
+This is a bot that generates tweets about #fake news, and general #fakeness.
 
 ## Usage:
+### Server:
 ```
 pip install -r requirements.txt
 
 heroku local web
 ```
 
+### Client:
+```
+sudo apt-get install python3 pulseaudio pulseaudio-module-bluetooth \
+  libttspico-utils expect
+sudo pip install -r requirements.txt
+
+python client.py
+```
 
 ## Add to Corpus
 `fake.py` accesses the twitter API to download recent tweets and is
@@ -30,9 +39,3 @@ Run:
 ```
 python fake.py
 ```
-
-
-
-
-
-

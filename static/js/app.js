@@ -4,8 +4,7 @@ if (window.location.protocol == 'https:') {
   var ws_scheme = 'ws://'
 }
 
-var inbox = new ReconnectingWebSocket(ws_scheme + location.host + '/receive')
-var outbox = new ReconnectingWebSocket(ws_scheme + location.host + '/submit')
+var socket = new ReconnectingWebSocket(ws_scheme + location.host + '/ws')
 
 var tweetEl = document.getElementById('tweet');
 
@@ -25,7 +24,7 @@ if (window.speechSynthesis) {
   }, 1000)
 }
 
-inbox.onmessage = function(message) {
+socket.onmessage = function(message) {
   var data = JSON.parse(message.data);
   if (data.evt == 'new:tweet') {
     updateTweet(data.tweet);
@@ -34,19 +33,14 @@ inbox.onmessage = function(message) {
   }
 }
 
-inbox.onclose = function() {
+socket.onclose = function() {
   console.log('inbox closed')
-  this.inbox = new WebSocket(inbox.url);
-}
-
-outbox.onclose = function() {
-  console.log('outbox close')
-  this.outbox = new WebSocket(inbox.url);
+  this.socket = new WebSocket(socket.url);
 }
 
 document.addEventListener('keydown', function(e) {
   if(e.keyCode === 32) {
-    outbox.send(JSON.stringify({ evt: 'button:pressed' }))
+    socket.send(JSON.stringify({ evt: 'button:pressed' }))
   }
 });
 

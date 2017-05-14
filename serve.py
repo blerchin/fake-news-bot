@@ -32,18 +32,7 @@ class TweetBackend(object):
             data = message.get('data')
             if message['type'] == 'message':
                 app.logger.info(u'sending: {}'.format(data))
-                yield self.handle_data(data)
-
-    def handle_data(self, message):
-        data = json.loads(message)
-        if data['evt'] == 'button:pressed':
-            return json.dumps({
-                'evt': 'new:tweet',
-                'tweet': model.make_short_sentence(140)
-            })
-        else:
-            return json
-
+                yield data
 
     def register(self, client):
         self.clients.append(client)
@@ -65,23 +54,26 @@ class TweetBackend(object):
 tweets = TweetBackend()
 tweets.start()
 
+def handle_message(message):
+    data = json.loads(message)
+    if data['evt'] == 'button:pressed':
+        result = json.dumps({
+            'evt': 'new:tweet',
+            'tweet': model.make_short_sentence(140)
+        })
+        redis.publish(REDIS_CHAN, result)
+
+
 @app.route("/")
 def render_app():
     return render_template('app.html')
 
-@sockets.route('/submit')
-def inbox(ws):
+@sockets.route('/ws')
+def socket(ws):
+    tweets.register(ws)
     while not ws.closed:
         gevent.sleep(0.1)
         message = ws.receive()
 
         if message:
-            app.logger.info(u'inserting message: {}'.format(message))
-            redis.publish(REDIS_CHAN, message)
-
-@sockets.route('/receive')
-def outbox(ws):
-    tweets.register(ws)
-
-    while not ws.closed:
-        gevent.sleep(0.1)
+            handle_message(message)
