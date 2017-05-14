@@ -12,9 +12,11 @@ heroku local web
 
 ### Client:
 ```
-sudo apt-get install python3 pulseaudio pulseaudio-module-bluetooth \
+sudo apt-get install python3 python3-pip \
+  pulseaudio pulseaudio-module-bluetooth \
   libttspico-utils expect
-sudo pip install -r requirements.txt
+sudo pip3 install -r requirements.txt
+sudo pip3 install websockets asyncio
 
 python client.py
 ```
