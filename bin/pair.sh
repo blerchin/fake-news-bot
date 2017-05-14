@@ -24,7 +24,3 @@ send "connect ${BT_MAC}\r"
 expect "Connection successful"
 send "exit"
 EOF
-
-pacmd set-default-sink bluez_sink.FC_58_FA_1A_90_92
-
-pico2wave -w ttl.wav "$1" && aplay ttl.wav
