@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BT_MAC="FC:58:FA:1A:90:92"
+export BT_MAC="FC:58:FA:1A:90:92"
 
 pulseaudio -D
 
@@ -18,6 +18,7 @@ expect "Connection successful"
 send "exit"
 EOF
 
-pacmd set-default-sink bluez_sink.FC_58_FA_1A_90_92
+pacmd set-default-sink "bluez_sink.$(echo $BT_MAC | tr : _)"
+
 
 pico2wave -w ttl.wav "$1" && aplay ttl.wav
