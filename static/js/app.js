@@ -46,7 +46,7 @@ document.addEventListener('keydown', function(e) {
 
 function updateTweet(text) {
     if (!speechSynthesis || !speechSynthesis.speaking) {
-      var tweet = stripUrls(htmlDecode(text));
+      var tweet = htmlDecode(text);
       tweetEl.textContent = tweet;
       speakTweet(formatHandles(formatHashtags(tweet)));
     }

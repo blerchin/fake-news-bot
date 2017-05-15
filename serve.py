@@ -4,6 +4,7 @@ import logging
 import redis
 import gevent
 import json
+import re
 from flask import Flask, render_template
 from flask_sockets import Sockets
 
@@ -19,6 +20,13 @@ redis = redis.from_url(REDIS_URL)
 with open('fake-2017-05-02.txt') as f:
     text = f.read()
     model = markovify.Text(text)
+
+def make_tweet():
+    return strip_urls(model.make_short_sentence(140))
+
+def strip_urls(text):
+    return re.sub(r"https:\/\/(.*?)[^A-Za-z0-9.\/]", ' ', text);
+
 
 class TweetBackend(object):
 
@@ -54,12 +62,13 @@ class TweetBackend(object):
 tweets = TweetBackend()
 tweets.start()
 
+
 def handle_message(message):
     data = json.loads(message)
     if data['evt'] == 'button:pressed':
         result = json.dumps({
             'evt': 'new:tweet',
-            'tweet': model.make_short_sentence(140)
+            'tweet': make_tweet()
         })
         redis.publish(REDIS_CHAN, result)
 
