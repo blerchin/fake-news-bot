@@ -1,0 +1,4 @@
+{
+	"WS_URL": "wss://fake-news-bot.herokuapp.com/ws",
+	"TTS_CMD": "bin/speak.sh"
+}
