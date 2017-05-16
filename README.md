@@ -14,7 +14,7 @@ heroku local web
 ```
 sudo apt-get install python3 python3-pip \
   pulseaudio pulseaudio-module-bluetooth \
-  libttspico-utils alsaplayer alsaplayer-text expect
+  espeak expect python3-rpi.gpio
 sudo pip3 install -r requirements.txt
 sudo pip3 install websockets asyncio
 
