@@ -34,7 +34,15 @@ class Client():
 		#self.speak("introducing Fake News Bot")
 		self.pipe = Pipe()
 		self.loop = asyncio.get_event_loop()
-		self.ws = self.loop.run_until_complete(websockets.connect(WS_URL))
+	
+	@asyncio.coroutine	
+	def connect_ws(self):
+		self.ws = yield from websockets.connect(WS_URL)
+	
+	@asyncio.coroutine	
+	def ensure_ws(self):
+		if not self.ws.open:
+			yield from self.connect_ws()
 
 	@asyncio.coroutine
 	def speak(self, text):
@@ -51,6 +59,7 @@ class Client():
 	def run(self):
 		self.flasher = Process(target=flash, args=[self.pipe])
 		self.flasher.start()
+		self.loop.run_until_complete(self.connect_ws())
 		self.loop.run_until_complete(asyncio.gather(
 			self.receive(),
 			self.handle_press()
@@ -61,34 +70,37 @@ class Client():
 	def receive(self):
 		read, write = self.pipe
 		while(True):
+			yield from self.ensure_ws()
 			message = yield from self.ws.recv()
-			write.send("speech:started")
-			self.speaking = True
-			try:
+			if message:
+				write.send("speech:started")
+				self.speaking = True
 				data = json.loads(message)
 				print("< {}".format(data['tweet']))
+				
 				yield from self.speak(data['tweet'])
-			except:
-				yield from self.speak("Data corrupted!")
 
-			write.send("speech:ended")
-			self.speaking = False
-			yield from asyncio.sleep(0.1)
+				write.send("speech:ended")
+				self.speaking = False
+				yield from asyncio.sleep(0.1)
+				
 
 	@asyncio.coroutine
 	def handle_press(self):
 		read, write = self.pipe
 		while(True):
 			if read.poll():
+				yield from self.ensure_ws()
 				evt = read.recv()
 				if evt == 'button:pressed' and not self.speaking:
 					yield from self.ws.send(json.dumps({ 'evt': 'button:pressed'}))
 			yield from asyncio.sleep(0.1)
 
-#subprocess.Popen(BROWSER_CMD, shell=True)
+subprocess.Popen(BROWSER_CMD, shell=True)
 
 c = Client()
 c.run()
+	
 
 
 

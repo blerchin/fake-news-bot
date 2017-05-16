@@ -5,6 +5,7 @@ BT_MAC="FC:58:FA:1A:90:92"
 pulseaudio -D
 
 expect << EOF
+set timeout 120
 spawn "bluetoothctl"
 expect "# "
 send "power on\r"
@@ -13,6 +14,11 @@ send "agent on\r"
 expect "Agent registered"
 send "default-agent\r"
 expect "Default agent request successful"
+send "remove ${BT_MAC}\r"
+expect {
+	"Device has been removed" {}
+	"not available" {}
+}
 send "scan on\r"
 expect "Discovery started"
 expect "Device ${BT_MAC}" 
