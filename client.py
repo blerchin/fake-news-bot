@@ -9,11 +9,12 @@ import websockets
 
 constants = json.loads(open("constants.json").read())
 
+BROWSER_CMD = constants['BROWSER_CMD']
 PAIR_CMD = constants['PAIR_CMD']
 TTS_CMD = constants['TTS_CMD']
 WS_URL = constants['WS_URL']
 
-subprocess.call(PAIR_CMD)
+#subprocess.call(PAIR_CMD)
 
 def speak(text):
 	if(random() < 0.5):
@@ -45,6 +46,7 @@ def receive(ws):
 			speak("Data corrupted!")
 
 
+subprocess.Popen(BROWSER_CMD, shell=True)
 
 loop = asyncio.get_event_loop()
 ws = loop.run_until_complete(websockets.connect(WS_URL))
@@ -53,5 +55,4 @@ loop.run_until_complete(asyncio.gather(
 	receive(ws)
 ))
 loop.run_forever()
-
 
