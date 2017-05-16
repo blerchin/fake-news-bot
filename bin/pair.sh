@@ -21,6 +21,14 @@ expect "Pairing successful"
 send "trust ${BT_MAC}\r"
 expect "trust succeeded"
 send "connect ${BT_MAC}\r"
-expect "Connection successful"
+expect {
+	"Connection successful" { send "exit" }
+	"Failed to connect: " { send "exit" }
+}
 send "exit"
 EOF
+
+pacmd set-default-sink "bluez_sink.$(echo $BT_MAC | tr : _)"
+pactl set-sink-volume "bluez_sink.$(echo $BT_MAC | tr : _)" 80%
+
+espeak -ven+f3 -k5 -s150 "Introducing Fake News Bot"

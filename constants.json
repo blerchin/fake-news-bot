@@ -1,4 +1,5 @@
 {
-	"WS_URL": "wss://fake-news-bot.herokuapp.com/ws",
-	"TTS_CMD": "bin/speak.sh"
+	"TTS_CMD": "bin/speak.sh",
+	"PAIR_CMD": "bin/pair.sh",
+	"WS_URL": "wss://fake-news-bot.herokuapp.com/ws"
 }
