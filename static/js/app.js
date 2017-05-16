@@ -8,22 +8,6 @@ var socket = new ReconnectingWebSocket(ws_scheme + location.host + '/ws')
 
 var tweetEl = document.getElementById('tweet');
 
-var voice = null;
-if (window.speechSynthesis) {
-  setTimeout(function(){
-    voices = speechSynthesis.getVoices();
-    voices.forEach(function(v) {
-      if(!voice && v.name == 'Alex') {
-        //fall back to Alex
-        voice = v;
-      } else if(v.name == 'Google US English') {
-        // prefer Google US
-        //voice = v;
-      }
-    });
-  }, 1000)
-}
-
 socket.onmessage = function(message) {
   var data = JSON.parse(message.data);
   if (data.evt == 'new:tweet') {
@@ -45,19 +29,8 @@ document.addEventListener('keydown', function(e) {
 });
 
 function updateTweet(text) {
-    if (!speechSynthesis || !speechSynthesis.speaking) {
-      var tweet = htmlDecode(text);
-      tweetEl.textContent = tweet;
-      speakTweet(formatHandles(formatHashtags(tweet)));
-    }
-}
-
-function speakTweet(text) {
-  if(!voice) { return; }
-  var msg = new SpeechSynthesisUtterance();
-  msg.voice = voice;
-  msg.text = text;
-  speechSynthesis.speak(msg);
+  var tweet = htmlDecode(text);
+  tweetEl.textContent = tweet;
 }
 
 function formatHandles(text) {
