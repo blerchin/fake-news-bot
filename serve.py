@@ -71,6 +71,8 @@ def handle_message(message):
             'tweet': make_tweet()
         })
         redis.publish(REDIS_CHAN, result)
+    else
+        redis.publish(REDIS_CHAN, data)
 
 
 @app.route("/")
