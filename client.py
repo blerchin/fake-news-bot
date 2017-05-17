@@ -48,10 +48,7 @@ class Client():
 
 	def run(self):
 		self.loop.run_until_complete(self.connect_ws())
-		self.loop.run_until_complete(asyncio.gather(
-			self.receive(),
-			self.handle_press()
-		))
+		self.loop.run_until_complete(self.receive())
 		self.loop.run_forever()
 
 	@asyncio.coroutine
@@ -70,18 +67,6 @@ class Client():
 				self.ws.send("speech:ended")
 				self.speaking = False
 				yield from asyncio.sleep(0.1)
-
-
-	@asyncio.coroutine
-	def handle_press(self):
-		read, write = self.pipe
-		while(True):
-			if read.poll():
-				yield from self.ensure_ws()
-				evt = read.recv()
-				if evt == 'button:pressed' and not self.speaking:
-					yield from self.ws.send(json.dumps({ 'evt': 'button:pressed'}))
-			yield from asyncio.sleep(0.1)
 
 #subprocess.Popen(BROWSER_CMD, shell=True)
 

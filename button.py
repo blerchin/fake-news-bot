@@ -48,10 +48,10 @@ class Button():
 		if state != self.button_pressed:
 			self.button_pressed = state
 			if state:
-				yield from self.ws.send("button:pressed")
+				yield from self.ws.send(json.dumps({ 'evt': "button:pressed" }))
 				self.set_speed(self.SPEED_SOLID)
 			else:
-				yield from self.ws.send("button:released")
+				yield from self.ws.send(json.dumps({ 'evt': "button:released" }))
 				self.set_speed(self.SPEED_FAST)
 
 	@asyncio.coroutine
