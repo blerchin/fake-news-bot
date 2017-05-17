@@ -72,7 +72,7 @@ def handle_message(message):
         })
         redis.publish(REDIS_CHAN, result)
     else:
-        redis.publish(REDIS_CHAN, json.dumps({data}))
+        redis.publish(REDIS_CHAN, json.dumps(data))
 
 
 @app.route("/")
