@@ -6,7 +6,6 @@ from random import random
 from math import floor
 from time import sleep
 import subprocess
-from multiprocessing import Process, Pipe
 import websockets
 from button import Button
 
@@ -19,27 +18,18 @@ WS_URL = constants['WS_URL']
 
 #subprocess.call(PAIR_CMD)
 
-def flash(pipe):
-	b = Button(pipe)
-	try:
-		while(True):
-			b.tick()
-			sleep(0.01)
-	except:
-		b.stop()
-
 class Client():
 	def __init__(self):
 		self.speaking = False
 		#self.speak("introducing Fake News Bot")
 		self.pipe = Pipe()
 		self.loop = asyncio.get_event_loop()
-	
-	@asyncio.coroutine	
+
+	@asyncio.coroutine
 	def connect_ws(self):
 		self.ws = yield from websockets.connect(WS_URL)
-	
-	@asyncio.coroutine	
+
+	@asyncio.coroutine
 	def ensure_ws(self):
 		if not self.ws.open:
 			yield from self.connect_ws()
@@ -55,10 +45,8 @@ class Client():
 		proc = subprocess.Popen([TTS_CMD, text, voice])
 		while(proc.poll() == None):
 			yield from asyncio.sleep(0.1)
-	
+
 	def run(self):
-		self.flasher = Process(target=flash, args=[self.pipe])
-		self.flasher.start()
 		self.loop.run_until_complete(self.connect_ws())
 		self.loop.run_until_complete(asyncio.gather(
 			self.receive(),
@@ -68,22 +56,21 @@ class Client():
 
 	@asyncio.coroutine
 	def receive(self):
-		read, write = self.pipe
 		while(True):
 			yield from self.ensure_ws()
 			message = yield from self.ws.recv()
 			if message:
-				write.send("speech:started")
+				self.ws.send("speech:started")
 				self.speaking = True
 				data = json.loads(message)
 				print("< {}".format(data['tweet']))
-				
+
 				yield from self.speak(data['tweet'])
 
-				write.send("speech:ended")
+				self.ws.send("speech:ended")
 				self.speaking = False
 				yield from asyncio.sleep(0.1)
-				
+
 
 	@asyncio.coroutine
 	def handle_press(self):
@@ -96,11 +83,7 @@ class Client():
 					yield from self.ws.send(json.dumps({ 'evt': 'button:pressed'}))
 			yield from asyncio.sleep(0.1)
 
-subprocess.Popen(BROWSER_CMD, shell=True)
+#subprocess.Popen(BROWSER_CMD, shell=True)
 
 c = Client()
 c.run()
-	
-
-
-
