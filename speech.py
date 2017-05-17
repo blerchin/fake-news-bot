@@ -7,7 +7,6 @@ from math import floor
 from time import sleep
 import subprocess
 import websockets
-from button import Button
 
 constants = json.loads(open("constants.json").read())
 
@@ -22,7 +21,6 @@ class Client():
 	def __init__(self):
 		self.speaking = False
 		#self.speak("introducing Fake News Bot")
-		self.pipe = Pipe()
 		self.loop = asyncio.get_event_loop()
 
 	@asyncio.coroutine
@@ -33,6 +31,11 @@ class Client():
 	def ensure_ws(self):
 		if not self.ws.open:
 			yield from self.connect_ws()
+	
+	@asyncio.coroutine
+	def write_ws(self, obj):
+		yield from self.ensure_ws()
+		yield from self.ws.send(json.dumps(obj))
 
 	@asyncio.coroutine
 	def speak(self, text):
@@ -57,15 +60,17 @@ class Client():
 			yield from self.ensure_ws()
 			message = yield from self.ws.recv()
 			if message:
-				self.ws.send("speech:started")
-				self.speaking = True
-				data = json.loads(message)
+				try:
+					data = json.loads(message)
+				except:
+					continue
+			if data and 'tweet' in data:
+				yield from self.write_ws({ 'evt': 'speech:started' })
 				print("< {}".format(data['tweet']))
 
 				yield from self.speak(data['tweet'])
 
-				self.ws.send("speech:ended")
-				self.speaking = False
+				yield from self.write_ws({ 'evt': 'speech:ended' })
 				yield from asyncio.sleep(0.1)
 
 #subprocess.Popen(BROWSER_CMD, shell=True)

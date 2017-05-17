@@ -1,7 +1,10 @@
+#!/usr/bin/env python3
+
 import asyncio
 import json
 import RPi.GPIO as GPIO
 from time import sleep
+import websockets
 
 constants = json.loads(open("constants.json").read())
 
@@ -12,8 +15,8 @@ PIN_SWITCH=27
 
 class Button():
 	SPEED_SOLID=0
-	SPEED_SLOW=2
-	SPEED_FAST=5
+	SPEED_SLOW=1
+	SPEED_FAST=3
 
 	def __init__(self):
 		GPIO.setmode(GPIO.BCM)
@@ -24,7 +27,6 @@ class Button():
 		self.dir = 0
 		self.light.start(self.dc)
 		self.speed = 2
-		self.pipe = pipe
 		self.button_pressed = False
 		self.loop = asyncio.get_event_loop()
 		self.loop.run_until_complete(self.connect_ws())
