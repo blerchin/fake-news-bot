@@ -61,8 +61,13 @@ class Button():
 		yield from self.ensure_ws()
 		message = yield from self.ws.recv()
 		if message:
-			data = json.loads(message)
-			if data['evt'] == 'speech:ended':
+			try:
+				data = json.loads(message)
+			except:
+				return
+		print(data)
+		if data and ('evt' in data) and (data['evt'] == 'speech:ended'):
+				print('ended')
 				self.set_speed(self.SPEED_SLOW)
 
 	def set_speed(self, speed):
@@ -84,6 +89,7 @@ class Button():
 
 	def tick(self):
 		self.loop.run_until_complete(self.check_pressed())
+		#self.loop.run_until_complete(self.check_ws())
 		self.flash()
 		self.light.ChangeDutyCycle(self.dc)
 
