@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+import sys
 import RPi.GPIO as GPIO
 from time import sleep
 import websockets
@@ -26,10 +27,11 @@ class Button():
 		self.dc = 0
 		self.dir = 0
 		self.light.start(self.dc)
-		self.speed = 2
+		self.speed = self.SPEED_SLOW
 		self.button_pressed = False
 		self.loop = asyncio.get_event_loop()
 		self.loop.run_until_complete(self.connect_ws())
+		self.check_ws()
 
 	@asyncio.coroutine
 	def connect_ws(self):
@@ -56,19 +58,25 @@ class Button():
 				yield from self.ws.send(json.dumps({ 'evt': "button:released" }))
 				self.set_speed(self.SPEED_FAST)
 
-	@asyncio.coroutine
 	def check_ws(self):
+		message = asyncio.async(self.receive_ws())
+		message.add_done_callback(self.got_ws)
+	
+	@asyncio.coroutine	
+	def receive_ws(self):
 		yield from self.ensure_ws()
 		message = yield from self.ws.recv()
+		return message
+	
+	def got_ws(self, message):
 		if message:
 			try:
-				data = json.loads(message)
+				data = json.loads(message.result())
 			except:
 				return
-		print(data)
 		if data and ('evt' in data) and (data['evt'] == 'speech:ended'):
-				print('ended')
 				self.set_speed(self.SPEED_SLOW)
+		self.check_ws()
 
 	def set_speed(self, speed):
 		self.speed = speed
@@ -89,7 +97,6 @@ class Button():
 
 	def tick(self):
 		self.loop.run_until_complete(self.check_pressed())
-		#self.loop.run_until_complete(self.check_ws())
 		self.flash()
 		self.light.ChangeDutyCycle(self.dc)
 
@@ -98,6 +105,12 @@ class Button():
 		GPIO.cleanup()
 
 button = Button()
-while True:
-	button.tick()
-	sleep(0.01)
+try:
+	while True:
+		button.tick()
+		sleep(0.01)
+except KeyboardInterrupt:
+	button.stop()
+	sys.exit(0)
+
+	
