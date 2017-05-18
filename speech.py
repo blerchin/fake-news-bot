@@ -73,7 +73,5 @@ class Client():
 				yield from self.write_ws({ 'evt': 'speech:ended' })
 				yield from asyncio.sleep(0.1)
 
-subprocess.Popen(BROWSER_CMD, shell=True)
-
 c = Client()
 c.run()
