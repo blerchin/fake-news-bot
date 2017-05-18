@@ -2,7 +2,7 @@
 
 import asyncio
 import json
-import sys
+import signal
 import RPi.GPIO as GPIO
 from time import sleep
 import websockets
@@ -105,12 +105,12 @@ class Button():
 		GPIO.cleanup()
 
 button = Button()
-try:
-	while True:
-		button.tick()
-		sleep(0.01)
-except KeyboardInterrupt:
+while True:
+	button.tick()
+	sleep(0.01)
+
+def cleanup(signum, frame):
 	button.stop()
-	sys.exit(0)
+signual.signal(signal.SIGINT, cleanup)
 
 	
