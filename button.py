@@ -105,12 +105,14 @@ class Button():
 		GPIO.cleanup()
 
 button = Button()
+
+def cleanup(signum, frame):
+	print('cleanup')
+	button.stop()
+signal.signal(signal.SIGINT, cleanup)
+
 while True:
 	button.tick()
 	sleep(0.01)
-
-def cleanup(signum, frame):
-	button.stop()
-signual.signal(signal.SIGINT, cleanup)
 
 	
