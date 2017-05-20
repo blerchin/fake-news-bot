@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BT_MAC="FC:58:FA:1A:90:92"
+BT_MAC="FC:58:FA:9E:A5:8E"
 
 pulseaudio -D
 

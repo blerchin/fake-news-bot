@@ -77,7 +77,7 @@ class Button():
 			try:
 				data = json.loads(message.result())
 			except:
-				return
+				data = False
 		if data and ('evt' in data) and (data['evt'] == 'speech:started'):
 			self.set_speed(self.SPEED_FAST)
 			self.speaking = True
