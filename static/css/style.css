@@ -1,6 +1,7 @@
 body {
   font-family: 'Raleway', 'sans-serif';
   text-rendering: geometricPrecision;
+  overflow: hidden;
 }
 
 .page {
