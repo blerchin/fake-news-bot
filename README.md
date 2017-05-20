@@ -4,6 +4,12 @@ This is a bot that generates tweets about #fake news, and general #fakeness.
 
 ## Usage:
 ### Server:
+First, create `.env` with the following:
+```
+ACCESS_TOKEN="some_token"
+REDIS_URL="redis://some_redis"
+```
+Then run:
 ```
 pip install -r requirements.txt
 
@@ -20,7 +26,7 @@ sudo pip3 install websockets asyncio
 ```
 Then create `.tokens` with the following:
 ```
-export BOT_ACCESS_TOKEN=your_access_token
+export BOT_ACCESS_TOKEN="your_same_token"
 ```
 
 
