@@ -4,7 +4,7 @@ if (window.location.protocol === 'https:') {
   var ws_scheme = 'ws://'
 }
 
-var socket = new ReconnectingWebSocket(ws_scheme + location.host + '/ws')
+var socket = new ReconnectingWebSocket(ws_scheme + location.host + '/ws' + location.search)
 
 var tweetEl = document.getElementById('tweet');
 
