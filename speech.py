@@ -11,6 +11,8 @@ import websockets
 
 constants = json.loads(open("constants.json").read())
 
+PULSEAUDIO_INIT = constants['PULSEAUDIO_INIT']
+subprocess.call(PULSEAUDIO_INIT)
 TTS_CMD = constants['TTS_CMD']
 WS_URL = os.environ['BOT_SOCKET_URL']
 
