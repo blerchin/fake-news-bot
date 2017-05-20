@@ -17,8 +17,16 @@ sudo apt-get install python3 python3-pip \
   espeak expect python3-rpi.gpio
 sudo pip3 install -r requirements.txt
 sudo pip3 install websockets asyncio
+```
+Then create `.tokens` with the following:
+```
+export BOT_ACCESS_TOKEN=your_access_token
+```
 
-python client.py
+
+Run with:
+```
+./bin/client.py
 ```
 
 ## Add to Corpus

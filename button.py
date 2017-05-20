@@ -2,14 +2,15 @@
 
 import asyncio
 import json
+import os
 import signal
 import RPi.GPIO as GPIO
 from time import sleep
 import websockets
 
 constants = json.loads(open("constants.json").read())
+WS_URL = os.environ['BOT_SOCKET_URL']
 
-WS_URL = constants['WS_URL']
 
 PIN_LIGHT=17
 PIN_SWITCH=27
