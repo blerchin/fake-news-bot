@@ -7,6 +7,7 @@ killgroup(){
 }
 
 ./button.py &
-./speech.py
+./speech.py &
+./bin/browser.sh
 wait
 

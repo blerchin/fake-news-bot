@@ -20,18 +20,22 @@ class Button():
 	SPEED_FAST=3
 
 	def __init__(self):
-		GPIO.setmode(GPIO.BCM)
+		self.setup_gpio()
 		GPIO.setup(PIN_SWITCH, GPIO.IN,  pull_up_down=GPIO.PUD_UP)
 		GPIO.setup(PIN_LIGHT, GPIO.OUT)
-		self.light = GPIO.PWM(PIN_LIGHT, 50)
 		self.dc = 0
-		self.dir = 0
+		self.light = GPIO.PWM(PIN_LIGHT, 50)
 		self.light.start(self.dc)
+		self.dir = 0
 		self.speed = self.SPEED_SLOW
 		self.button_pressed = False
+		self.speaking = False
 		self.loop = asyncio.get_event_loop()
 		self.loop.run_until_complete(self.connect_ws())
 		self.check_ws()
+	
+	def setup_gpio(self):
+		GPIO.setmode(GPIO.BCM)
 
 	@asyncio.coroutine
 	def connect_ws(self):
@@ -43,6 +47,7 @@ class Button():
 			yield from self.connect_ws()
 
 	def is_pressed(self):
+		self.setup_gpio()
 		return not GPIO.input(PIN_SWITCH)
 
 	@asyncio.coroutine
@@ -51,12 +56,11 @@ class Button():
 		state = self.is_pressed()
 		if state != self.button_pressed:
 			self.button_pressed = state
-			if state:
-				yield from self.ws.send(json.dumps({ 'evt': "button:pressed" }))
+			if state and not self.speaking:
 				self.set_speed(self.SPEED_SOLID)
+				yield from self.ws.send(json.dumps({ 'evt': "button:pressed" }))
 			else:
 				yield from self.ws.send(json.dumps({ 'evt': "button:released" }))
-				self.set_speed(self.SPEED_FAST)
 
 	def check_ws(self):
 		message = asyncio.async(self.receive_ws())
@@ -73,9 +77,13 @@ class Button():
 			try:
 				data = json.loads(message.result())
 			except:
-				return
-		if data and ('evt' in data) and (data['evt'] == 'speech:ended'):
-				self.set_speed(self.SPEED_SLOW)
+				data = False
+		if data and ('evt' in data) and (data['evt'] == 'speech:started'):
+			self.set_speed(self.SPEED_FAST)
+			self.speaking = True
+		elif data and ('evt' in data) and (data['evt'] == 'speech:ended'):
+			self.set_speed(self.SPEED_SLOW)
+			self.speaking = False
 		self.check_ws()
 
 	def set_speed(self, speed):

@@ -14,18 +14,6 @@ send "agent on\r"
 expect "Agent registered"
 send "default-agent\r"
 expect "Default agent request successful"
-send "remove ${BT_MAC}\r"
-expect {
-	"Device has been removed" {}
-	"not available" {}
-}
-send "scan on\r"
-expect "Discovery started"
-expect "Device ${BT_MAC}" 
-send "pair ${BT_MAC}\r"
-expect "Pairing successful"
-send "trust ${BT_MAC}\r"
-expect "trust succeeded"
 send "connect ${BT_MAC}\r"
 expect {
 	"Connection successful" { send "exit" }
