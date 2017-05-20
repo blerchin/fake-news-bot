@@ -9,6 +9,8 @@ First, create `.env` with the following:
 ACCESS_TOKEN="some_token"
 REDIS_URL="redis://some_redis"
 ```
+Then run:
+```
 pip install -r requirements.txt
 
 heroku local web
