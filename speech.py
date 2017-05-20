@@ -6,16 +6,15 @@ from random import random
 from math import floor
 from time import sleep
 import subprocess
+import os
 import websockets
 
 constants = json.loads(open("constants.json").read())
 
-BROWSER_CMD = constants['BROWSER_CMD']
-PAIR_CMD = constants['PAIR_CMD']
+PULSEAUDIO_INIT = constants['PULSEAUDIO_INIT']
+subprocess.call(PULSEAUDIO_INIT)
 TTS_CMD = constants['TTS_CMD']
-WS_URL = constants['WS_URL']
-
-#subprocess.call(PAIR_CMD)
+WS_URL = os.environ['BOT_SOCKET_URL']
 
 class Client():
 	def __init__(self):
