@@ -8,6 +8,8 @@ var socket = new ReconnectingWebSocket(ws_scheme + location.host + '/ws' + locat
 
 var tweetEl = document.getElementById('tweet');
 
+document.documentElement.style.overflow = 'hidden';
+
 socket.onmessage = function(message) {
   var data = JSON.parse(message.data);
   if (data.evt == 'new:tweet') {
