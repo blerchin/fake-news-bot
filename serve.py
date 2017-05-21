@@ -1,13 +1,14 @@
-import markovify
-import os
-import logging
-import redis
-import gevent
-import json
-import re
 from flask import Flask, request, render_template, Response
 from flask_sockets import Sockets
 from functools import wraps
+import markovify
+import json
+import logging
+import redis
+import gevent
+import os
+import re
+import twitter
 
 REDIS_URL = os.environ['REDIS_URL']
 REDIS_CHAN = 'tweets'
@@ -19,6 +20,12 @@ app.debug = 'DEBUG' in os.environ
 sockets = Sockets(app)
 redis = redis.from_url(REDIS_URL)
 
+tw_api = twitter.Api(consumer_key=os.environ['TWITTER_CONSUMER_KEY'],
+        consumer_secret=os.environ['TWITTER_CONSUMER_SECRET'],
+        access_token_key=os.environ['TWITTER_ACCESS_TOKEN_KEY'],
+        access_token_secret=os.environ['TWITTER_ACCESS_TOKEN_SECRET']
+        )
+
 with open('fake-2017-05-02.txt') as f:
     text = f.read()
     model = markovify.Text(text)
@@ -28,6 +35,12 @@ def make_tweet():
 
 def strip_urls(text):
     return re.sub(r"https:\/\/(.*?)[^A-Za-z0-9.\/]", ' ', text);
+
+def send_tweet(text):
+    try:
+        tw_api.PostUpdate(text)
+    except Exception as e:
+        print(e)
 
 def authenticate(token):
     return token == ACCESS_TOKEN
@@ -39,6 +52,8 @@ def authenticated(f):
             return Response('Authentication failed.', 403)
         return f(*args, **kwargs)
     return decorated
+
+
 
 class TweetBackend(object):
     def __init__(self):
@@ -77,11 +92,13 @@ tweets.start()
 def handle_message(message):
     data = json.loads(message)
     if data['evt'] == 'button:pressed':
+        tweet = make_tweet()
         result = json.dumps({
             'evt': 'new:tweet',
-            'tweet': make_tweet()
+            'tweet': tweet
         })
         redis.publish(REDIS_CHAN, result)
+        send_tweet(tweet)
     else:
         redis.publish(REDIS_CHAN, json.dumps(data))
 
