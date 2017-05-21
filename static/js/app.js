@@ -32,7 +32,7 @@ document.addEventListener('keydown', function(e) {
 
 function updateTweet(text) {
   var tweet = emoji.parseEmoji(htmlDecode(text));
-  tweetEl.textContent = tweet;
+  tweetEl.innerHTML = tweet;
 }
 
 function formatHandles(text) {
