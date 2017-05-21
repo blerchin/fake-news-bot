@@ -31,7 +31,7 @@ document.addEventListener('keydown', function(e) {
 });
 
 function updateTweet(text) {
-  var tweet = htmlDecode(text);
+  var tweet = parseEmoji(htmlDecode(text));
   tweetEl.textContent = tweet;
 }
 
