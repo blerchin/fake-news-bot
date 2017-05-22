@@ -31,10 +31,13 @@ with open('fake-2017-05-02.txt') as f:
     model = markovify.Text(text)
 
 def make_tweet():
-    return strip_urls(model.make_short_sentence(140))
+    return strip_handles(strip_urls(model.make_short_sentence(140)))
 
 def strip_urls(text):
     return re.sub(r"https:\/\/(.*?)[^A-Za-z0-9.\/]", ' ', text);
+
+def strip_handles(text):
+    return re.sub(r"(@)", '', text)
 
 def send_tweet(text):
     try:
