@@ -8,7 +8,9 @@ var socket = new ReconnectingWebSocket(ws_scheme + location.host + '/ws' + locat
 
 var tweetEl = document.getElementById('tweet');
 
-document.documentElement.style.overflow = 'hidden';
+if (document.querySelectorAll('.noscroll').length > 0) {
+  document.documentElement.style.overflow = 'hidden';
+}
 
 socket.onmessage = function(message) {
   var data = JSON.parse(message.data);

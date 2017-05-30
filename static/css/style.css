@@ -1,21 +1,30 @@
 body {
   font-family: 'Raleway', 'sans-serif';
   text-rendering: geometricPrecision;
-  overflow: hidden;
 }
 
 .page {
   align-items: center;
   display:flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
   justify-content: center;
-  padding: 100px;
+}
+@media screen and (min-width: 768px) {
+  .page {
+    padding: 100px;
+  }
 }
 
 .container {
   padding: 0 100px;
   max-width: 100%;
+}
+.container.timeline {
+  padding: 0;
+  padding-top: 40px;
+  padding-bottom: 20vh;
+  z-index: 10;
 }
 h1 {
   font-size: 66px;
@@ -27,4 +36,23 @@ h1 {
   font-weight: 200;
   line-height: 110px;
   white-space: pre-line;
+}
+[class^="red-button--"] {
+  bottom: 0px;
+  left: 0px;
+  margin: 0;
+  padding: 0;
+  position: fixed;
+  pointer-events: none;
+  width: 100vw;
+  z-index: 100;
+}
+[class^="red-button--"] img {
+  display: block;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+.red-button--down {
+  opacity: 0;
 }

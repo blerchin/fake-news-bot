@@ -48,13 +48,15 @@ def send_tweet(text):
 def authenticate(token):
     return token == ACCESS_TOKEN
 
-def authenticated(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        if not authenticate(request.args.get('accessToken')):
-            return Response('Authentication failed.', 403)
-        return f(*args, **kwargs)
-    return decorated
+def authenticated(public_method):
+    def auth_func(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            if not authenticate(request.args.get('accessToken')):
+                return public_method(*args, **kwargs)
+            return f(*args, **kwargs)
+        return decorated
+    return auth_func
 
 
 
@@ -92,27 +94,48 @@ tweets = TweetBackend()
 tweets.start()
 
 
-def handle_message(message):
+def get_tweet_evt(tweet):
+    return json.dumps({
+        'evt': 'new:tweet',
+        'tweet': tweet
+    })
+
+def handle_message(message, public = False):
     data = json.loads(message)
-    if data['evt'] == 'button:pressed':
+    if data['evt'] == 'button:pressed' and not public:
         tweet = make_tweet()
-        result = json.dumps({
-            'evt': 'new:tweet',
-            'tweet': tweet
-        })
+        result = get_tweet_evt(tweet)
         redis.publish(REDIS_CHAN, result)
         send_tweet(tweet)
-    else:
+    elif data['evt'] == 'button:pressed':
+        return get_tweet_evt(make_tweet())
+    elif not public:
         redis.publish(REDIS_CHAN, json.dumps(data))
 
+@app.route("/public")
+def render_public():
+    return render_template('public.html')
 
 @app.route("/")
-@authenticated
+@authenticated(render_public)
 def render_app():
     return render_template('app.html')
 
+@app.route("/ws_public")
+def socket_public(ws):
+    #send messages but don't receive
+    tweets.register(ws)
+    while not ws.closed:
+        gevent.sleep(0.1)
+        message = ws.receive()
+
+        if message:
+            result = handle_message(message, True)
+        if result:
+            ws.send(result)
+
 @sockets.route('/ws')
-@authenticated
+@authenticated(socket_public)
 def socket(ws):
     tweets.register(ws)
     while not ws.closed:
