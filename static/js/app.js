@@ -80,7 +80,7 @@ function updateTweet(text) {
     tweetEl.innerHTML = tweet;
   } else {
     renderTimeline();
-    speakTweet();
+    speakTweet(text);
   }
 }
 
