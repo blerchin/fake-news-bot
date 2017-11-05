@@ -43,8 +43,9 @@ if (document.querySelectorAll('.noscroll').length > 0) {
 socket.onmessage = function(message) {
   var data = JSON.parse(message.data);
   if (data.evt == 'new:tweet') {
-    updateTweet(data.tweet);
-    speakTweet(data.tweet);
+    setTimeout(function() {
+      updateTweet(data.tweet);
+    }, 1000);
   } else {
     console.log(data);
   }
@@ -78,7 +79,8 @@ function updateTweet(text) {
     var tweet = emoji.parseEmoji(htmlDecode(text));
     tweetEl.innerHTML = tweet;
   } else {
-    setTimeout(renderTimeline, 1000);
+    renderTimeline();
+    speakTweet();
   }
 }
 
