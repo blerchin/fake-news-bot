@@ -7,6 +7,7 @@ if (window.location.protocol === 'https:') {
 var socket = new ReconnectingWebSocket(ws_scheme + location.host + '/ws' + location.search)
 
 var tweetEl = document.getElementById('tweet');
+var buttonEl = document.getElementById('clickableButton');
 
 if (document.querySelectorAll('.noscroll').length > 0) {
   document.documentElement.style.overflow = 'hidden';
@@ -28,13 +29,25 @@ socket.onclose = function() {
 
 document.addEventListener('keydown', function(e) {
   if(e.keyCode === 32) {
-    socket.send(JSON.stringify({ evt: 'button:pressed' }))
+    sendPress();
   }
 });
 
+buttonEl.addEventListener('mousedown', function() {
+  sendPress();
+});
+
+function sendPress() {
+  socket.send(JSON.stringify({ evt: 'button:pressed' }))
+}
+
 function updateTweet(text) {
-  var tweet = emoji.parseEmoji(htmlDecode(text));
-  tweetEl.innerHTML = tweet;
+  if (tweetEl) {
+    var tweet = emoji.parseEmoji(htmlDecode(text));
+    tweetEl.innerHTML = tweet;
+  } else {
+    twttr.widgets.load();
+  }
 }
 
 function formatHandles(text) {

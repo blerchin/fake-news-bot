@@ -37,22 +37,37 @@ h1 {
   line-height: 110px;
   white-space: pre-line;
 }
-[class^="red-button--"] {
-  bottom: 0px;
-  left: 0px;
+.button-wrap {
+  bottom: 0;
   margin: 0;
   padding: 0;
-  position: fixed;
   pointer-events: none;
+  position: fixed;
   width: 100vw;
   z-index: 100;
 }
-[class^="red-button--"] img {
+.red-button {
+  bottom: 0px;
+  left: 0px;
+  position: absolute;
+}
+.red-button img {
   display: block;
   margin: 0;
   padding: 0;
   width: 100%;
 }
 .red-button--down {
+  position: static;
   opacity: 0;
+}
+a.clickable-button {
+  display: block;
+  height: 30%;
+  left: 50%;
+  pointer-events: all;
+  position: absolute;
+  transform: translateX(-50%);
+  top: 30%;
+  width: 30%;
 }
