@@ -100,16 +100,14 @@ def get_tweet_evt(tweet):
         'tweet': tweet
     })
 
-def handle_message(message, public = False):
+def handle_message(message):
     data = json.loads(message)
-    if data['evt'] == 'button:pressed' and not public:
+    if data['evt'] == 'button:pressed':
         tweet = make_tweet()
         result = get_tweet_evt(tweet)
         redis.publish(REDIS_CHAN, result)
         send_tweet(tweet)
-    elif data['evt'] == 'button:pressed':
-        return get_tweet_evt(make_tweet())
-    elif not public:
+    else:
         redis.publish(REDIS_CHAN, json.dumps(data))
 
 @app.route("/public")
@@ -121,21 +119,7 @@ def render_public():
 def render_app():
     return render_template('app.html')
 
-@app.route("/ws_public")
-def socket_public(ws):
-    #send messages but don't receive
-    tweets.register(ws)
-    while not ws.closed:
-        gevent.sleep(0.1)
-        message = ws.receive()
-
-        if message:
-            result = handle_message(message, True)
-        if result:
-            ws.send(result)
-
 @sockets.route('/ws')
-@authenticated(socket_public)
 def socket(ws):
     tweets.register(ws)
     while not ws.closed:
