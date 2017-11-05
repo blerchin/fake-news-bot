@@ -6,6 +6,20 @@ if (window.location.protocol === 'https:') {
 
 var socket = new ReconnectingWebSocket(ws_scheme + location.host + '/ws' + location.search)
 
+
+var voice = null;
+if (window.speechSynthesis) {
+ setTimeout(function(){
+   voices = speechSynthesis.getVoices();
+   voices.forEach(function(v) {
+     if(!voice && v.name == 'Alex') {
+       //fall back to Alex
+       voice = v;
+     }
+   });
+ }, 1000)
+}
+
 var tweetEl = document.getElementById('tweet');
 var buttonWrap = document.getElementById('buttonWrap');
 var buttonEl = document.getElementById('clickableButton');
@@ -30,6 +44,7 @@ socket.onmessage = function(message) {
   var data = JSON.parse(message.data);
   if (data.evt == 'new:tweet') {
     updateTweet(data.tweet);
+    speakTweet(data.tweet);
   } else {
     console.log(data);
   }
@@ -66,6 +81,15 @@ function updateTweet(text) {
     setTimeout(renderTimeline, 1000);
   }
 }
+
+function speakTweet(text) {
+  if(!voice) { return; }
+  var msg = new SpeechSynthesisUtterance();
+  msg.voice = voice;
+  msg.text = text;
+  speechSynthesis.speak(msg);
+}
+
 
 function formatHandles(text) {
   return text.replace(/@([A-Za-z0-9_].*?)/g, function(match, p1) {
