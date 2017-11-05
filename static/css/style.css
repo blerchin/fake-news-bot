@@ -61,6 +61,12 @@ h1 {
   position: static;
   opacity: 0;
 }
+.button-wrap.down .red-button--up {
+  opacity: 0;
+}
+.button-wrap.down .red-button--down {
+  opacity: 1;
+}
 a.clickable-button {
   display: block;
   height: 30%;

@@ -7,8 +7,10 @@ if (window.location.protocol === 'https:') {
 var socket = new ReconnectingWebSocket(ws_scheme + location.host + '/ws' + location.search)
 
 var tweetEl = document.getElementById('tweet');
+var buttonWrap = document.getElementById('buttonWrap');
 var buttonEl = document.getElementById('clickableButton');
 var timelineEl = document.getElementById('timeline');
+
 function renderTimeline() {
   timelineEl.innerHTML = '';
   twttr.widgets.createTimeline({
@@ -45,7 +47,11 @@ document.addEventListener('keydown', function(e) {
 });
 
 buttonEl.addEventListener('mousedown', function() {
+  buttonWrap.classList.add('down');
   sendPress();
+});
+buttonEl.addEventListener('mouseup', function() {
+  buttonWrap.classList.remove('down');
 });
 
 function sendPress() {
@@ -57,7 +63,7 @@ function updateTweet(text) {
     var tweet = emoji.parseEmoji(htmlDecode(text));
     tweetEl.innerHTML = tweet;
   } else {
-    renderTimeline();
+    setTimeout(renderTimeline, 1000);
   }
 }
 
