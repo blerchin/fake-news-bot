@@ -1,11 +1,6 @@
 {% extends "layout.html" %}
 {% block body %}
-    <div class="container timeline">
-      <a
-        class="twitter-timeline"
-        data-chrome="noheader nofooter noborders transparent"
-        href="https://twitter.com/fake_news_bot">
-      </a>
+    <div class="container timeline" id="timeline">
     </div>
     <div class="button-wrap">
       <a class="clickable-button" id="clickableButton">
@@ -17,5 +12,4 @@
         <img src="/static/img/btn-down.png" />
       </div>
     </div>
-    <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
 {% endblock %}

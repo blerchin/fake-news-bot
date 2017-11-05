@@ -8,6 +8,17 @@ var socket = new ReconnectingWebSocket(ws_scheme + location.host + '/ws' + locat
 
 var tweetEl = document.getElementById('tweet');
 var buttonEl = document.getElementById('clickableButton');
+var timelineEl = document.getElementById('timeline');
+function renderTimeline() {
+  timelineEl.innerHTML = '';
+  twttr.widgets.createTimeline({
+    sourceType: 'profile',
+    screenName: 'fake_news_bot'
+  }, timelineEl, {
+    chrome: 'noheader nofooter noborders transparent',
+  });
+}
+renderTimeline();
 
 if (document.querySelectorAll('.noscroll').length > 0) {
   document.documentElement.style.overflow = 'hidden';
@@ -46,7 +57,7 @@ function updateTweet(text) {
     var tweet = emoji.parseEmoji(htmlDecode(text));
     tweetEl.innerHTML = tweet;
   } else {
-    twttr.widgets.load();
+    renderTimeline();
   }
 }
 
