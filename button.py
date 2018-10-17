@@ -1,19 +1,16 @@
 #!/usr/bin/env python3
 
-import asyncio
-import json
 import os
 import signal
 import RPi.GPIO as GPIO
-from time import sleep
-import websockets
-
-constants = json.loads(open("constants.json").read())
-WS_URL = os.environ['BOT_SOCKET_URL']
+from time import sleep, time
+from tweet import tweet
+from tts import speak
 
 
 PIN_LIGHT=17
 PIN_SWITCH=27
+FLASH_INTERVAL = 5
 
 class Button():
 	SPEED_SOLID=0
@@ -29,63 +26,37 @@ class Button():
 		self.light.start(self.dc)
 		self.dir = 0
 		self.speed = self.SPEED_SLOW
+		self.time_pressed = time() - FLASH_INTERVAL
 		self.button_pressed = False
-		self.speaking = False
-		self.loop = asyncio.get_event_loop()
-		self.loop.run_until_complete(self.connect_ws())
-		self.check_ws()
+		self.stopped = False
 	
 	def setup_gpio(self):
 		GPIO.setmode(GPIO.BCM)
-
-	@asyncio.coroutine
-	def connect_ws(self):
-		self.ws = yield from websockets.connect(WS_URL)
-
-	@asyncio.coroutine
-	def ensure_ws(self):
-		if not self.ws.open:
-			yield from self.connect_ws()
+	
+	def is_running(self):
+		return not self.stopped
 
 	def is_pressed(self):
-		self.setup_gpio()
 		return not GPIO.input(PIN_SWITCH)
 
-	@asyncio.coroutine
 	def check_pressed(self):
-		yield from self.ensure_ws()
 		state = self.is_pressed()
 		if state != self.button_pressed:
 			self.button_pressed = state
-			if state and not self.speaking:
-				self.set_speed(self.SPEED_SOLID)
-				yield from self.ws.send(json.dumps({ 'evt': "button:pressed" }))
-			else:
-				yield from self.ws.send(json.dumps({ 'evt': "button:released" }))
-
-	def check_ws(self):
-		message = asyncio.async(self.receive_ws())
-		message.add_done_callback(self.got_ws)
+			if state:
+				self.send_tweet()
+				self.time_pressed = time()
+	def send_tweet(self):
+		message = tweet()
+		speak(message)
 	
-	@asyncio.coroutine	
-	def receive_ws(self):
-		yield from self.ensure_ws()
-		message = yield from self.ws.recv()
-		return message
-	
-	def got_ws(self, message):
-		if message:
-			try:
-				data = json.loads(message.result())
-			except:
-				data = False
-		if data and ('evt' in data) and (data['evt'] == 'speech:started'):
+	def check_speed(self):
+		if self.button_pressed:
+			self.set_speed(self.SPEED_SOLID)
+		elif time() - self.time_pressed < FLASH_INTERVAL:
 			self.set_speed(self.SPEED_FAST)
-			self.speaking = True
-		elif data and ('evt' in data) and (data['evt'] == 'speech:ended'):
+		else:
 			self.set_speed(self.SPEED_SLOW)
-			self.speaking = False
-		self.check_ws()
 
 	def set_speed(self, speed):
 		self.speed = speed
@@ -105,11 +76,13 @@ class Button():
 		self.dc = 99
 
 	def tick(self):
-		self.loop.run_until_complete(self.check_pressed())
+		self.check_pressed()
+		self.check_speed()
 		self.flash()
 		self.light.ChangeDutyCycle(self.dc)
 
 	def stop(self):
+		self.stopped = True
 		self.light.stop()
 		GPIO.cleanup()
 
@@ -120,7 +93,7 @@ def cleanup(signum, frame):
 	button.stop()
 signal.signal(signal.SIGINT, cleanup)
 
-while True:
+while button.is_running():
 	button.tick()
 	sleep(0.01)
 
