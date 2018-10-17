@@ -13,7 +13,6 @@ subprocess.call(PULSEAUDIO_INIT)
 TTS_CMD = constants['TTS_CMD']
 
 def speak(text):
-	print("speaking " + text)
 	if(random() < 0.5):
 		gender = 'm'
 	else:
