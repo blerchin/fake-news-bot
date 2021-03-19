@@ -6,7 +6,7 @@ markovify==0.6.0
 greenlet==0.4.9
 gunicorn==19.4.5
 itsdangerous==0.24
-Jinja2==2.8
+Jinja2==2.11.3
 MarkupSafe==0.23
 python-twitter==3.2.1
 redis==2.10.5
